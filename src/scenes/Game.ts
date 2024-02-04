@@ -1,14 +1,30 @@
-import { Scene } from 'phaser';
-
+import { Scene, Physics, Input } from 'phaser';
+import { Actor } from '../actors/Actor';
+import { Enemy } from '../actors/Enemy';
+import { Projectile } from '../actors/Projectile';
 export class Game extends Scene
 {
     camera: Phaser.Cameras.Scene2D.Camera;
     background: Phaser.GameObjects.Image;
-    msg_text : Phaser.GameObjects.Text;
+    player: Actor;
+    platforms: Physics.Arcade.StaticGroup;
+    // cursors: Input.Keyboard.CursorKeys;
+    enemies: Physics.Arcade.Group;
+    projectiles: Physics.Arcade.Group;
+    enemy: Enemy;
 
     constructor ()
     {
         super('Game');
+    }
+
+    preload(){
+        this.load.setPath('assets');
+        this.load.image('background', 'background.png');
+        this.load.image('platform', 'platform.png');
+        this.load.image('enemy', 'enemy.png');
+        this.load.image('projectile', 'projectile.png');
+        // this.load.image('player', 'goblin scout - silhouette all animations-idle.png');
     }
 
     create ()
@@ -19,17 +35,56 @@ export class Game extends Scene
         this.background = this.add.image(512, 384, 'background');
         this.background.setAlpha(0.5);
 
-        this.msg_text = this.add.text(512, 384, 'Make something fun!\nand share it with us:\nsupport@phaser.io', {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
-            align: 'center'
+        this.platforms = this.physics.add.staticGroup();
+        this.platforms.create(200, 500, 'platform').setScale(2).refreshBody();
+        this.platforms.create(200, 700, 'platform').setScale(2).refreshBody();
+        this.platforms.create(300, 650, 'platform').setScale(2).refreshBody();
+        this.platforms.create(400, 568, 'platform').setScale(2).refreshBody();
+        this.platforms.create(500, 568, 'platform').setScale(2).refreshBody();
+        this.platforms.create(600, 568, 'platform').setScale(2).refreshBody();
+
+        this.player = new Actor(this, 400, 300);
+        this.physics.add.collider(this.player, this.platforms);
+
+
+        this.enemies = this.physics.add.group();
+        this.enemy = new Enemy(this, 200, 300);
+        this.physics.add.collider(this.enemy, this.platforms);
+        this.enemies.add(this.enemy);
+
+        this.projectiles = this.physics.add.group({ 
+            classType: Projectile
         });
-        this.msg_text.setOrigin(0.5);
 
-        this.input.once('pointerdown', () => {
+        this.physics.add.collider(this.projectiles, this.platforms, (projectile, platform) => {
+            projectile.destroy();
+        });
 
-            this.scene.start('GameOver');
+        this.physics.add.collider(this.player, this.enemy, () => {
+            this.player.takeDamage(10); // The player takes 10 damage when it collides with the enemy
+        });
 
+        this.physics.add.collider(this.projectiles, this.enemies, (projectile, enemy) => {
+            projectile.destroy();
+            enemy.destroy();
+        });
+
+        this.camera.startFollow(this.player);
+    }
+
+    update ()
+    {
+        this.player.update();
+        if (!this.input.keyboard) throw new Error('No keyboard found');
+        if (this.input.keyboard.addKey('SHIFT').isDown) {
+            const projectile = this.player.fireProjectile();
+            if (projectile) {
+              this.projectiles.add(projectile); // add the projectile to the group
+            }
+        }
+
+        this.projectiles.getChildren().forEach((projectile: any) => {
+            projectile.update();
         });
     }
 }
