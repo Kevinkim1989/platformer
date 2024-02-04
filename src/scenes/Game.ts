@@ -21,10 +21,10 @@ export class Game extends Scene
     preload(){
         this.load.setPath('assets');
         this.load.image('background', 'background.png');
-        this.load.image('platform', 'platform.png');
-        this.load.image('enemy', 'enemy.png');
-        this.load.image('projectile', 'projectile.png');
-        // this.load.image('player', 'goblin scout - silhouette all animations-idle.png');
+        this.load.spritesheet('player', './assets/scout-idle.png'), {
+            frameWidth: 10,
+            frameHeight: 10
+            };
     }
 
     create ()
@@ -35,13 +35,7 @@ export class Game extends Scene
         this.background = this.add.image(512, 384, 'background');
         this.background.setAlpha(0.5);
 
-        this.platforms = this.physics.add.staticGroup();
-        this.platforms.create(200, 500, 'platform').setScale(2).refreshBody();
-        this.platforms.create(200, 700, 'platform').setScale(2).refreshBody();
-        this.platforms.create(300, 650, 'platform').setScale(2).refreshBody();
-        this.platforms.create(400, 568, 'platform').setScale(2).refreshBody();
-        this.platforms.create(500, 568, 'platform').setScale(2).refreshBody();
-        this.platforms.create(600, 568, 'platform').setScale(2).refreshBody();
+        this.createPlatforms();
 
         this.player = new Actor(this, 400, 300);
         this.physics.add.collider(this.player, this.platforms);
@@ -86,5 +80,15 @@ export class Game extends Scene
         this.projectiles.getChildren().forEach((projectile: any) => {
             projectile.update();
         });
+    }
+
+    createPlatforms() {
+        this.platforms = this.physics.add.staticGroup();
+        this.platforms.create(200, 500, 'platform').setScale(2).refreshBody();
+        this.platforms.create(200, 700, 'platform').setScale(2).refreshBody();
+        this.platforms.create(300, 650, 'platform').setScale(2).refreshBody();
+        this.platforms.create(400, 568, 'platform').setScale(2).refreshBody();
+        this.platforms.create(500, 568, 'platform').setScale(2).refreshBody();
+        this.platforms.create(600, 568, 'platform').setScale(2).refreshBody();
     }
 }

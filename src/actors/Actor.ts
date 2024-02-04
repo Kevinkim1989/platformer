@@ -5,10 +5,12 @@ export class Actor extends Phaser.Physics.Arcade.Sprite {
   hp: number
   direction: 'left' | 'right' = 'right'; // Add a direction property
   fireRate: number = 200; 
-  lastFired: number = 0; 
+  lastFired: number = 0;
+  parentScene: Phaser.Scene;
 
   constructor(scene: Phaser.Scene, x: number = 100, y: number=100) {
-    super(scene, x, y, 'player'); // The frame is optional 
+    super(scene, x, y, 'player', 1);
+    this.parentScene = scene;
     scene.physics.world.enable(this);
     scene.add.existing(this);
     this.setGravityY(300);
@@ -39,24 +41,20 @@ export class Actor extends Phaser.Physics.Arcade.Sprite {
   }
 
   update() {
-    if (!this.scene.input.keyboard) throw new Error('No keyboard found');
+    if (!this.parentScene.input.keyboard) throw new Error('No keyboard found');
 
-    if (this.cursors.left.isDown || this.scene.input.keyboard.addKey('A').isDown) {
+    if (this.cursors.left.isDown || this.parentScene.input.keyboard.addKey('A').isDown) {
       this.setVelocityX(-160);
-      this.direction = 'left'; // Update the direction property
-    } else if (this.cursors.right.isDown || this.scene.input.keyboard.addKey('D').isDown) {
+      this.direction = 'left';
+    } else if (this.cursors.right.isDown || this.parentScene.input.keyboard.addKey('D').isDown) {
       this.setVelocityX(160);
-      this.direction = 'right'; // Update the direction property
+      this.direction = 'right';
     } else {
       this.setVelocityX(0);
     }
 
-    if ((this.cursors.space.isDown || this.cursors.up.isDown || this.scene.input.keyboard.addKey('W').isDown) && this.body?.touching.down) {
+    if ((this.cursors.space.isDown || this.cursors.up.isDown || this.parentScene.input.keyboard.addKey('W').isDown) && this.body.touching.down) {
       this.setVelocityY(-330);
     }
-
-    // if (this.scene.input.keyboard.addKey('SHIFT').isDown) {
-    //   this.fireProjectile();
-    // }
   }
 }

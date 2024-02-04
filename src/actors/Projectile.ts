@@ -1,6 +1,6 @@
 export class Projectile extends Phaser.Physics.Arcade.Sprite {
   direction: 'left' | 'right' = 'right'; // Add a direction property
-  power: number = 500;
+  power: number = 800;
   
   constructor(scene: Phaser.Scene, x: number, y: number, direction: 'left' | 'right' = 'right') {
     super(scene, x, y, 'projectile');
@@ -14,7 +14,7 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityX(this.power);
     } else {
       this.setVelocityX(-this.power);
-    }      
+    }
   }
 
   update() {
