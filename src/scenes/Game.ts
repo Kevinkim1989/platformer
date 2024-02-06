@@ -1,17 +1,19 @@
 import { Scene, Physics, Input } from 'phaser';
-import { Actor } from '../actors/Actor';
-import { Enemy } from '../actors/Enemy';
+import { Player } from '../actors/Player';
+// import { Actor } from '../actors/Actor';
+// import { Enemy } from '../actors/Enemy';
 import { Projectile } from '../actors/Projectile';
+
 export class Game extends Scene
 {
     camera: Phaser.Cameras.Scene2D.Camera;
     background: Phaser.GameObjects.Image;
-    player: Actor;
+    player: Player;
     platforms: Physics.Arcade.StaticGroup;
     // cursors: Input.Keyboard.CursorKeys;
     enemies: Physics.Arcade.Group;
     projectiles: Physics.Arcade.Group;
-    enemy: Enemy;
+    // enemy: Enemy;
 
     constructor ()
     {
@@ -21,10 +23,10 @@ export class Game extends Scene
     preload(){
         this.load.setPath('assets');
         this.load.image('background', 'background.png');
-        this.load.spritesheet('player', './assets/scout-idle.png'), {
-            frameWidth: 10,
-            frameHeight: 10
-            };
+        this.load.spritesheet('player', 'scout-idle.png', {frameWidth: 64});
+        this.load.spritesheet('player-run', 'scout-run.png', {frameWidth: 64});
+        this.load.spritesheet('player-walk', 'scout-walk.png', {frameWidth: 64});
+        this.load.spritesheet('projectile', 'scout-idle.png', {frameWidth: 16});
     }
 
     create ()
@@ -37,14 +39,8 @@ export class Game extends Scene
 
         this.createPlatforms();
 
-        this.player = new Actor(this, 400, 300);
-        this.physics.add.collider(this.player, this.platforms);
-
-
-        this.enemies = this.physics.add.group();
-        this.enemy = new Enemy(this, 200, 300);
-        this.physics.add.collider(this.enemy, this.platforms);
-        this.enemies.add(this.enemy);
+        this.player = new Player(this, 400, 300);
+        this.physics.add.collider(this.player.getSprite(), this.platforms);
 
         this.projectiles = this.physics.add.group({ 
             classType: Projectile
@@ -53,33 +49,17 @@ export class Game extends Scene
         this.physics.add.collider(this.projectiles, this.platforms, (projectile, platform) => {
             projectile.destroy();
         });
-
-        this.physics.add.collider(this.player, this.enemy, () => {
-            this.player.takeDamage(10); // The player takes 10 damage when it collides with the enemy
-        });
-
-        this.physics.add.collider(this.projectiles, this.enemies, (projectile, enemy) => {
-            projectile.destroy();
-            enemy.destroy();
-        });
-
-        this.camera.startFollow(this.player);
+        // this.camera.startFollow(this.player);
     }
 
     update ()
     {
-        this.player.update();
-        if (!this.input.keyboard) throw new Error('No keyboard found');
-        if (this.input.keyboard.addKey('SHIFT').isDown) {
-            const projectile = this.player.fireProjectile();
-            if (projectile) {
-              this.projectiles.add(projectile); // add the projectile to the group
-            }
-        }
+        this.player.update(this.time.now);
+        // if (!this.input.keyboard) throw new Error('No keyboard found');
 
-        this.projectiles.getChildren().forEach((projectile: any) => {
-            projectile.update();
-        });
+        // this.projectiles.getChildren().forEach((projectile: any) => {
+        //     projectile.update();
+        // });
     }
 
     createPlatforms() {
