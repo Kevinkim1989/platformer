@@ -15,7 +15,7 @@ const config: Types.Core.GameConfig = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
+            gravity: { y: 500 },
             debug: true
         }
     },
@@ -25,6 +25,7 @@ const config: Types.Core.GameConfig = {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
+    pixelArt: true, // Enable pixel art
     scene: [
         Boot,
         Preloader,

@@ -1,27 +1,73 @@
-export class Enemy extends Phaser.Physics.Arcade.Sprite {
-  direction: 'left' | 'right' = 'right';
-  hp: number = 100;
+import { Game } from "../scenes/Game";
+import { Direction } from "../types";
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'enemy'); // Use 'enemy' key here
-    scene.physics.world.enable(this);
-    scene.add.existing(this);
+export class Enemy {
+
+  private scene: Game;
+  private sprite: Phaser.Physics.Arcade.Sprite;
+  private direction: Direction = Direction.RIGHT;
+
+  constructor(scene: Game, x: number, y: number) {
+    this.scene = scene;
+    this.sprite = this.scene.physics.add.sprite(x, y, 'enemy');
+    this.resizeSpriteAndBounds();
+    this.sprite.setCollideWorldBounds(true);
+    this.sprite.setBounce(0.2);
+    this.initAnims()
+    this.sprite.anims.play('idle', true);
+    this.sprite.setTint(0x00ff00);
   }
 
-  takeDamage(damage: number, direction: 'left' | 'right') {
-    this.hp -= damage;
-    if (this.hp <= 0) {
-      this.destroy();
-    } else {
-      this.pushBack(direction);
-    }
+  private resizeSpriteAndBounds(){
+    this.sprite.setSize(10, 15);
+    this.sprite.setOffset(28, 30);
+
+    this.sprite.displayWidth *= 2;
+    this.sprite.displayHeight *= 2;
   }
 
-  pushBack(direction: 'left' | 'right') {
-    if (direction === 'right') {
-      this.setVelocityX(-200); // push back to the left
-    } else {
-      this.setVelocityX(200); // push back to the right
-    }
+  private initAnims(){
+    this.sprite.anims.create({
+      key: 'idle',
+      frames: this.sprite.anims.generateFrameNumbers('enemy', { start: 0, end: 7 }),
+      frameRate: 10,
+      repeat: -1
+    })
+
+    // this.sprite.anims.create({
+    //   key: 'walk',
+    //   frames: this.sprite.anims.generateFrameNumbers('player-walk', { start: 0, end: 7 }),
+    //   frameRate: 10,
+    //   repeat: -1,
+    // })
+
+    // this.sprite.anims.create({
+    //   key: 'run',
+    //   frames: this.sprite.anims.generateFrameNumbers('player-run', { start: 0, end: 7 }),
+    //   frameRate: 10,
+    //   repeat: -1,
+    // })
+
+    // this.sprite.anims.create({
+    //   key: 'hit',
+    //   frames: this.sprite.anims.generateFrameNumbers('player-hit', { start: 0, end: 2 }),
+    //   frameRate: 10,
+    //   repeat: -1,
+    // })    
+  }
+
+  public getSprite(): Phaser.Physics.Arcade.Sprite {
+    return this.sprite;
+  }
+
+  public getHit(){
+    console.log("Enemy hit!")
+    this.sprite.setTint(0xff0000);
+  }
+
+  public die() {
+    console.log("Enemy died!")
+    this.sprite.setTint(0xff0000);
+    // this.sprite.destroy();
   }
 }
